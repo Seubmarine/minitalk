@@ -6,12 +6,9 @@ void printsignum(int signum)
 	printf("signum = %i\n", signum);
 }
 
-static int t = 0;
-
 void	end(int signum)
 {
 	printsignum(signum);
-	printf("Has received %i bit\n", t);
 	exit(EXIT_SUCCESS);
 }
 
@@ -20,7 +17,6 @@ void print(int signum)
 	static int count = 0;
 	static int current_int = 0;
 
-	t++;
 	current_int = current_int << 1;
 	if (signum == SIGUSR1)
 		printf("0");
