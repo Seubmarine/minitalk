@@ -6,16 +6,15 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 07:56:25 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/02 09:58:08 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/03 00:15:23 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "vector.h"
 
-# include <string.h>
 t_vec	vec_new(size_t cap)
 {
-	t_vec vec;
+	t_vec	vec;
 
 	vec.len = 0;
 	vec.capacity = 0;

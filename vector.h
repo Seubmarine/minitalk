@@ -6,7 +6,7 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 07:56:15 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/01 08:13:06 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/03 00:15:29 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define VECTOR_H
 # include <stddef.h>
 # include <stdlib.h>
+# include <string.h>
+
 typedef struct s_vec
 {
 	size_t	capacity;
