@@ -6,12 +6,13 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 07:56:25 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/01 08:23:08 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/02 09:58:08 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "vector.h"
 
+# include <string.h>
 t_vec	vec_new(size_t cap)
 {
 	t_vec vec;
@@ -24,29 +25,31 @@ t_vec	vec_new(size_t cap)
 	vec.data = malloc(sizeof(char) * cap);
 	if (!vec.data)
 		return (vec);
+	memset(vec.data, 0, vec.capacity);
 	vec.capacity = cap;
 	return (vec);
 }
 
-# include <string.h>
-
 void	vec_push_back(t_vec *vec, char byte)
 {
 	char	*tmp_new_alloc;
+	size_t	new_cap;
 
-	vec->len += 1;
+	vec->len++;
 	if (vec->len > vec->capacity)
 	{
-		tmp_new_alloc = malloc(sizeof(*vec->data) * vec->capacity);
+		new_cap = vec->capacity * 2;
+		tmp_new_alloc = malloc(sizeof(*vec->data) * new_cap);
 		if (!tmp_new_alloc)
 		{
 			vec_free(vec);
 			return ;
 		}
-		memcpy(tmp_new_alloc, vec->data, vec->capacity);
-		vec->capacity *= 2;
+		memset(tmp_new_alloc, 0, new_cap);
+		memcpy(tmp_new_alloc, vec->data, vec->len - 1);
 		free(vec->data);
 		vec->data = tmp_new_alloc;
+		vec->capacity = new_cap;
 	}
 	vec->data[vec->len - 1] = byte;
 }

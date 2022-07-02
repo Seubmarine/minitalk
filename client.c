@@ -19,7 +19,7 @@ void	send_pid(pid_t server_pid, pid_t client_pid)
 	{
 		current = (client_pid >> i & 1);
 		send_signal(server_pid, current);
-		usleep(300);
+		usleep(10000);
 		i--;
 	}
 	//printf("\n");

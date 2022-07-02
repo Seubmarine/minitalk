@@ -39,6 +39,14 @@ void	print_bits(char bits[8])
 	}
 	printf("\n");
 }
+int ft_strlen(char *str)
+{
+	int i = 0;
+	while (str[i])
+		i++;
+	return (i);
+}
+
 void receive_string(int signum)
 {
 	static char			bits[8] = {0};
@@ -48,7 +56,7 @@ void receive_string(int signum)
 	printf("received a signal\n");
 	(void) signum;
 	if (vec.data == NULL)
-		vec = vec_new(4096);
+		vec = vec_new(4);
 	if (signum == SIGUSR2) // 1
 		bits[bits_i] = 1;
 	else if (signum == SIGUSR1) // 0
@@ -60,15 +68,17 @@ void receive_string(int signum)
 		bits_i = 0;
 		printf("bits:%c\n", bit_to_byte(bits));
 		vec_push_back(&vec, bit_to_byte(bits));
+		memset(bits, 0, 8);
 		if (vec.data[vec.len - 1] == '\0')
 		{
-			printf("%s\n\n", vec.data);
+			//printf("%s\n\n", vec.data);
+			printf("strlen: %i, veclen: %lu\n", ft_strlen(vec.data), vec.len);
+			write(1, vec.data, vec.len - 1);
 			vec_free(&vec);
 			signal(SIGUSR1, get_client_pid);
 			signal(SIGUSR2, get_client_pid);
 			return ;
 		}
-		memset(bits, 0, 8);
 	}
 	printf("Send signal to client: %i\n", client_pid);
 	kill(client_pid, SIGUSR2); // say to continue to send
