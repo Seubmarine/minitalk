@@ -12,7 +12,7 @@ SRCS_CLIENT = client.c
 
 OBJS_CLIENT = $(SRCS_CLIENT:.c=.o)
 
-SRCS_SERVER = server.c
+SRCS_SERVER = server.c vector.c
 
 OBJS_SERVER = $(SRCS_SERVER:.c=.o)
 
