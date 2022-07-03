@@ -6,7 +6,7 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/03 00:16:29 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/03 00:19:51 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/03 02:11:46 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,12 +79,11 @@ int	main(int argc, char const *argv[])
 	signal(SIGUSR1, exit_client);
 	if (argc < 3)
 	{
-		printf("Not enough args");
+		write(1, "Not enough args\n", 16);
 		return (0);
 	}
-	g_server.pid = atoi(argv[1]);
+	g_server.pid = ft_atoi(argv[1]);
 	client_pid = getpid();
-	printf("client pid: %i\n", client_pid);
 	g_server.str = argv[2];
 	send_pid(g_server.pid, client_pid);
 	while (1)

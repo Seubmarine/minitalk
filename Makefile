@@ -16,20 +16,24 @@ SRCS_SERVER = server.c vector.c
 
 OBJS_SERVER = $(SRCS_SERVER:.c=.o)
 
+SRCS_COMMON = ft_utils.c
+
+OBJS_COMMON = $(SRCS_COMMON:.c=.o)
+
 .PHONY: all clean fclean re
 
 $(NAME): $(SERVER) $(CLIENT)
 
 all: $(NAME)
 
-$(SERVER): $(OBJS_SERVER)
-	$(CC) $(CFLAGS) $(OBJS_SERVER) -o $(SERVER)
+$(SERVER): $(OBJS_COMMON) $(OBJS_SERVER)
+	$(CC) $(CFLAGS) $(OBJS_COMMON) $(OBJS_SERVER) -o $(SERVER)
 
-$(CLIENT) : $(OBJS_CLIENT)
-	$(CC) $(CFLAGS) $(OBJS_CLIENT) -o $(CLIENT)
+$(CLIENT) : $(OBJS_COMMON) $(OBJS_CLIENT)
+	$(CC) $(CFLAGS) $(OBJS_COMMON) $(OBJS_CLIENT) -o $(CLIENT)
 
 clean:
-	-rm -f $(OBJS_SERVER) $(OBJS_CLIENT)
+	-rm -f $(OBJS_SERVER) $(OBJS_CLIENT) $(OBJS_COMMON)
 
 fclean: clean
 	-rm -f $(CLIENT) $(SERVER)

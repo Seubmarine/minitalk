@@ -6,19 +6,13 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/03 00:16:19 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/03 01:58:03 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/03 02:10:44 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
 pid_t	g_client_pid;
-
-void	exit_server(int signum)
-{
-	(void) signum;
-	exit(EXIT_SUCCESS);
-}
 
 char	bit_to_byte(char bits[8])
 {
@@ -94,7 +88,9 @@ int	main(int argc, char const *argv[])
 	(void) argc;
 	(void) argv;
 	server_pid = getpid();
-	printf("server pid: %i\n", server_pid);
+	write(1, "server pid: ", 12);
+	ft_putnbr_fd(server_pid, 1);
+	write(1, "\n", 1);
 	signal(SIGUSR1, get_client_pid);
 	signal(SIGUSR2, get_client_pid);
 	while (1)
