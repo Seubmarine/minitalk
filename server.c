@@ -6,11 +6,13 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/03 00:16:19 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/03 00:16:20 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/03 01:58:03 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "minitalk.h"
+#include "minitalk.h"
+
+pid_t	g_client_pid;
 
 void	exit_server(int signum)
 {
@@ -18,13 +20,12 @@ void	exit_server(int signum)
 	exit(EXIT_SUCCESS);
 }
 
-pid_t	client_pid;
-
 char	bit_to_byte(char bits[8])
 {
-	int i;
-	char byte = 0;
- 
+	int		i;
+	char	byte;
+
+	byte = 0;
 	i = 7;
 	while (i >= 0)
 	{
@@ -35,41 +36,38 @@ char	bit_to_byte(char bits[8])
 	return (byte);
 }
 
-void get_client_pid(int signum);
+void	get_client_pid(int signum);
 
-void receive_string(int signum)
+void	receive_string(int signum)
 {
 	static char		bits[8] = {0};
 	static t_vec	vec = {.data = NULL, .capacity = 0, .len = 0};
 	static size_t	bits_i = 0;
-	
+
 	(void) signum;
 	if (vec.data == NULL)
 		vec = vec_new(4);
-	if (signum == SIGUSR2) // 1
-		bits[bits_i] = 1;
-	else if (signum == SIGUSR1) // 0
+	bits[bits_i] = 1;
+	if (signum == SIGUSR1)
 		bits[bits_i] = 0;
-	bits_i++;
-	if (bits_i == 8)
+	if (++bits_i == 8)
 	{
 		bits_i = 0;
 		vec_push_back(&vec, bit_to_byte(bits));
-		memset(bits, 0, 8);
 		if (vec.data[vec.len - 1] == '\0')
 		{
-			write(1, vec.data, vec.len - 1);
+			vec.data[vec.len - 1] = '\n';
+			write(1, vec.data, vec.len);
 			vec_free(&vec);
 			signal(SIGUSR1, get_client_pid);
 			signal(SIGUSR2, get_client_pid);
 			return ;
 		}
 	}
-	kill(client_pid, SIGUSR2); // say to continue to send
+	kill(g_client_pid, SIGUSR2);
 }
 
-
-void get_client_pid(int signum)
+void	get_client_pid(int signum)
 {
 	static int	count = 0;
 	static int	current_int = 0;
@@ -80,16 +78,16 @@ void get_client_pid(int signum)
 	count++;
 	if (count == (sizeof(pid_t) * 8))
 	{
-		client_pid = current_int;
+		g_client_pid = current_int;
 		current_int = 0;
 		count = 0;
 		signal(SIGUSR1, receive_string);
 		signal(SIGUSR2, receive_string);
-		kill(client_pid, SIGUSR2);
+		kill(g_client_pid, SIGUSR2);
 	}
 }
 
-int main(int argc, char const *argv[])
+int	main(int argc, char const *argv[])
 {
 	pid_t	server_pid;
 
@@ -99,6 +97,7 @@ int main(int argc, char const *argv[])
 	printf("server pid: %i\n", server_pid);
 	signal(SIGUSR1, get_client_pid);
 	signal(SIGUSR2, get_client_pid);
-	while (1);
+	while (1)
+		;
 	return (EXIT_FAILURE);
 }
