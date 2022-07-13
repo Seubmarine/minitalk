@@ -6,7 +6,7 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/03 00:16:29 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/03 02:11:46 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/13 02:14:54 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,27 +20,6 @@ void	send_signal(pid_t server_pid, int data)
 		kill(server_pid, SIGUSR1);
 }
 
-void	send_pid(pid_t server_pid, pid_t client_pid)
-{
-	int	i;
-	int	current;
-
-	i = sizeof(client_pid) * 8 - 1;
-	while (i >= 0)
-	{
-		current = (client_pid >> i & 1);
-		send_signal(server_pid, current);
-		usleep(10000);
-		i--;
-	}
-}
-
-typedef struct s_server_info
-{
-	pid_t		pid;
-	const char	*str;
-}	t_server_info;
-
 t_server_info	g_server;
 
 void	send_string(int signum)
@@ -50,6 +29,7 @@ void	send_string(int signum)
 	char			current;
 
 	(void) signum;
+	g_server.has_response = true;
 	current = g_server.str[i] >> bit_i & 1;
 	bit_i++;
 	if (bit_i == 8)
@@ -73,8 +53,6 @@ void	exit_client(int signum)
 
 int	main(int argc, char const *argv[])
 {
-	pid_t	client_pid;
-
 	signal(SIGUSR2, send_string);
 	signal(SIGUSR1, exit_client);
 	if (argc < 3)
@@ -83,10 +61,15 @@ int	main(int argc, char const *argv[])
 		return (0);
 	}
 	g_server.pid = ft_atoi(argv[1]);
-	client_pid = getpid();
 	g_server.str = argv[2];
-	send_pid(g_server.pid, client_pid);
-	while (1)
-		;
+	g_server.has_response = false;
+	kill(g_server.pid, SIGUSR1);
+	sleep(3);
+	if (g_server.has_response)
+	{
+		while (1)
+			pause();
+	}
+	write(1, "No response from the server, server PID might be invalid\n", 57);
 	return (EXIT_FAILURE);
 }

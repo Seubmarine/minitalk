@@ -6,13 +6,25 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/03 00:16:19 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/03 02:10:44 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/13 02:15:42 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
 pid_t	g_client_pid;
+
+void	receive_string(int signum);
+
+void	func_test(int sig, siginfo_t *info, void *ucontext)
+{
+	(void) sig;
+	(void) ucontext;
+	g_client_pid = info->si_pid;
+	signal(SIGUSR1, receive_string);
+	signal(SIGUSR2, receive_string);
+	kill(g_client_pid, SIGUSR2);
+}
 
 char	bit_to_byte(char bits[8])
 {
@@ -30,7 +42,17 @@ char	bit_to_byte(char bits[8])
 	return (byte);
 }
 
-void	get_client_pid(int signum);
+void	set_action_to_default(void)
+{
+	struct sigaction	myaction;
+	sigset_t			info;
+
+	sigemptyset(&info);
+	myaction.sa_flags = SA_SIGINFO;
+	myaction.sa_mask = info;
+	myaction.sa_sigaction = func_test;
+	sigaction(SIGUSR1, &myaction, NULL);
+}
 
 void	receive_string(int signum)
 {
@@ -53,32 +75,11 @@ void	receive_string(int signum)
 			vec.data[vec.len - 1] = '\n';
 			write(1, vec.data, vec.len);
 			vec_free(&vec);
-			signal(SIGUSR1, get_client_pid);
-			signal(SIGUSR2, get_client_pid);
+			set_action_to_default();
 			return ;
 		}
 	}
 	kill(g_client_pid, SIGUSR2);
-}
-
-void	get_client_pid(int signum)
-{
-	static int	count = 0;
-	static int	current_int = 0;
-
-	current_int = current_int << 1;
-	if (signum == SIGUSR2)
-		current_int += 1;
-	count++;
-	if (count == (sizeof(pid_t) * 8))
-	{
-		g_client_pid = current_int;
-		current_int = 0;
-		count = 0;
-		signal(SIGUSR1, receive_string);
-		signal(SIGUSR2, receive_string);
-		kill(g_client_pid, SIGUSR2);
-	}
 }
 
 int	main(int argc, char const *argv[])
@@ -91,9 +92,8 @@ int	main(int argc, char const *argv[])
 	write(1, "server pid: ", 12);
 	ft_putnbr_fd(server_pid, 1);
 	write(1, "\n", 1);
-	signal(SIGUSR1, get_client_pid);
-	signal(SIGUSR2, get_client_pid);
+	set_action_to_default();
 	while (1)
-		;
+		pause();
 	return (EXIT_FAILURE);
 }
