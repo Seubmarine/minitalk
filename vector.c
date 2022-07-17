@@ -6,7 +6,7 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 07:56:25 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/03 02:12:02 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/16 23:39:24 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ t_vec	vec_new(size_t cap)
 		return (vec);
 	vec.data = malloc(sizeof(char) * cap);
 	if (!vec.data)
-		return (vec);
+		exit(EXIT_FAILURE);
 	ft_memset(vec.data, 0, vec.capacity);
 	vec.capacity = cap;
 	return (vec);
@@ -42,7 +42,7 @@ void	vec_push_back(t_vec *vec, char byte)
 		if (!tmp_new_alloc)
 		{
 			vec_free(vec);
-			return ;
+			exit(EXIT_FAILURE);
 		}
 		ft_memset(tmp_new_alloc, 0, new_cap);
 		ft_memcpy(tmp_new_alloc, vec->data, vec->len - 1);
