@@ -6,7 +6,7 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/03 00:16:29 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/13 02:14:54 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/07/17 05:15:02 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,52 +20,53 @@ void	send_signal(pid_t server_pid, int data)
 		kill(server_pid, SIGUSR1);
 }
 
-t_server_info	g_server;
+const char	*g_str;
 
-void	send_string(int signum)
+void	send_string(int signum, siginfo_t *info, void *ucontext)
 {
-	static size_t	i = 0;
-	static size_t	bit_i = 0;
-	char			current;
+	static unsigned char	current_char[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+	static size_t			bit_i = 0;
 
+	(void) ucontext;
 	(void) signum;
-	g_server.has_response = true;
-	current = g_server.str[i] >> bit_i & 1;
-	bit_i++;
-	if (bit_i == 8)
+	if (bit_i == 0)
+	{
+		ft_memset(current_char, 2, 8);
+		bit_i = 0;
+		while (bit_i < 8)
+		{
+			current_char[bit_i] = *g_str >> bit_i & 1;
+			bit_i++;
+		}
+		bit_i = 0;
+		g_str++;
+	}
+	send_signal(info->si_pid, current_char[bit_i]);
+	if (++bit_i == 8)
 	{
 		bit_i = 0;
-		i++;
-		if (g_server.str[i - 1] == '\0')
-		{	
-			send_signal(g_server.pid, current);
+		if (*(g_str - 1) == '\0')
 			exit(EXIT_SUCCESS);
-		}
 	}
-	send_signal(g_server.pid, current);
-}
-
-void	exit_client(int signum)
-{
-	(void) signum;
-	exit(EXIT_SUCCESS);
 }
 
 int	main(int argc, char const *argv[])
 {
-	signal(SIGUSR2, send_string);
-	signal(SIGUSR1, exit_client);
+	struct sigaction	myaction;
+
 	if (argc < 3)
 	{
 		write(1, "Not enough args\n", 16);
 		return (0);
 	}
-	g_server.pid = ft_atoi(argv[1]);
-	g_server.str = argv[2];
-	g_server.has_response = false;
-	kill(g_server.pid, SIGUSR1);
+	g_str = argv[2];
+	sigemptyset(&(myaction.sa_mask));
+	myaction.sa_flags = SA_SIGINFO;
+	myaction.sa_sigaction = send_string;
+	sigaction(SIGUSR2, &myaction, NULL);
+	kill(ft_atoi(argv[1]), SIGUSR1);
 	sleep(3);
-	if (g_server.has_response)
+	if (g_str != argv[2])
 	{
 		while (1)
 			pause();
