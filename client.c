@@ -6,7 +6,7 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/03 00:16:29 by tbousque          #+#    #+#             */
-/*   Updated: 2022/08/20 17:22:33 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/08/20 17:33:13 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ int	main(int argc, char const *argv[])
 		while (1)
 			pause();
 	}
-	write(STDERR_FILENO, "No response from the server, server PID might be invalid.\n", 58);
+	write(STDERR_FILENO, \
+		"No response from the server, PID might be invalid.\n", 51);
 	return (EXIT_FAILURE);
 }
