@@ -6,7 +6,7 @@
 /*   By: tbousque <tbousque@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/03 00:16:29 by tbousque          #+#    #+#             */
-/*   Updated: 2022/07/17 05:15:02 by tbousque         ###   ########.fr       */
+/*   Updated: 2022/08/20 17:22:33 by tbousque         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,15 +50,43 @@ void	send_string(int signum, siginfo_t *info, void *ucontext)
 	}
 }
 
+int	ft_isnumber(char const *str)
+{
+	size_t	i;
+
+	i = 0;
+	while (str[i] != '\0')
+	{
+		if (str[i] >= '0' && str[i] <= '9')
+			i++;
+		else
+			return (0);
+	}
+	return (1);
+}
+
+int	check_arg_error(int argc, char const *argv[])
+{
+	if (argc < 3)
+		write(STDERR_FILENO, "Error: Not enough args.\n", 24);
+	else if (argc > 3)
+		write(STDERR_FILENO, "Error: Too much args.\n", 22);
+	if (argc != 3)
+		return (1);
+	if (!ft_isnumber(argv[1]) || ft_atoi(argv[1]) <= 0)
+	{
+		write(STDERR_FILENO, "Error: PID is invalid.\n", 23);
+		return (1);
+	}
+	return (0);
+}
+
 int	main(int argc, char const *argv[])
 {
 	struct sigaction	myaction;
 
-	if (argc < 3)
-	{
-		write(1, "Not enough args\n", 16);
-		return (0);
-	}
+	if (check_arg_error(argc, argv))
+		return (EXIT_FAILURE);
 	g_str = argv[2];
 	sigemptyset(&(myaction.sa_mask));
 	myaction.sa_flags = SA_SIGINFO;
@@ -71,6 +99,6 @@ int	main(int argc, char const *argv[])
 		while (1)
 			pause();
 	}
-	write(1, "No response from the server, server PID might be invalid\n", 57);
+	write(STDERR_FILENO, "No response from the server, server PID might be invalid.\n", 58);
 	return (EXIT_FAILURE);
 }
